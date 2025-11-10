@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>التنمر الإلكتروني</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind Config & Custom Styles -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              'tajawal': ['Tajawal', 'sans-serif'],
+            },
+            keyframes: {
+              'fade-in': {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            },
+            animation: {
+              'fade-in': 'fade-in 0.5s ease-out forwards',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Tajawal', sans-serif;
+      }
+    </style>
+
+    <!-- React Libraries -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX Transpilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useCallback, StrictMode } = React;
+
+      // --- Enums and Types (as JS objects) ---
+      const ScreenType = {
+        Home: 'HOME',
+        SubScreen: 'SUB_SCREEN',
+        InfoScreen: 'INFO_SCREEN',
+      };
+
+      // --- SVG Icons ---
+      const DefinitionIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>;
+      const PreventionIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.286zm0 13.036h.008v.008H12v-.008z" /></svg>;
+      const FormsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.543L16.5 21.75l-.398-1.207a3.375 3.375 0 00-2.455-2.456L12.75 18l1.207-.398a3.375 3.375 0 002.455-2.456L16.5 14.25l.398 1.207a3.375 3.375 0 002.456 2.456L20.25 18l-1.207.398a3.375 3.375 0 00-2.456 2.456z" /></svg>;
+      const SignsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>;
+      const CausesIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" /></svg>;
+      const TreatmentIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>;
+      const ChildrenIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>;
+      const ParentsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m-7.5-2.962c.57-1.031.996-2.138 1.29-3.26C12.138 7.98 12.738 7.5 13.5 7.5c.763 0 1.362.48 1.71 1.257 1.053 2.26 2.053 4.545 2.053 6.743 0 1.23-1.043 2.25-2.31 2.25-1.268 0-2.31-.984-2.31-2.25 0-2.198-.956-4.42-1.92-6.521-.482-1.031-.962-2.074-1.35-3.049m-6.042 1.521c.482 1.031.962 2.074 1.35 3.049.964 2.099 1.92 4.322 1.92 6.521 0 1.267-1.043 2.25-2.31 2.25-1.268 0-2.31-1.016-2.31-2.25 0-2.198 1-4.482 2.054-6.743C5.638 8.016 6.237 7.5 7 7.5c.763 0 1.362.48 1.71 1.257z" /></svg>;
+      const AdultsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
+      const AppIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>;
+      const PhoneIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-white"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" /></svg>;
+
+      // --- Data Constants ---
+      const HOME_SCREEN_ITEMS = [
+        { id: 'definition', label: 'التعريف', icon: <DefinitionIcon />, targetScreen: ScreenType.InfoScreen },
+        { id: 'prevention', label: 'الوقاية', icon: <PreventionIcon />, targetScreen: ScreenType.SubScreen },
+        { id: 'forms', label: 'الأشكال والطرق', icon: <FormsIcon />, targetScreen: ScreenType.InfoScreen },
+        { id: 'signs', label: 'العلامات', icon: <SignsIcon />, targetScreen: ScreenType.InfoScreen },
+        { id: 'causes', label: 'الأسباب', icon: <CausesIcon />, targetScreen: ScreenType.InfoScreen },
+        { id: 'treatment', label: 'العلاج', icon: <TreatmentIcon />, targetScreen: ScreenType.SubScreen },
+        { id: 'resources-amn', label: 'تطبيق كلنا أمن', icon: <AppIcon />, targetScreen: ScreenType.InfoScreen },
+        { id: 'resources-qaribon', label: 'تطبيق قريبون', icon: <AppIcon />, targetScreen: ScreenType.InfoScreen },
+        { id: 'resources-line', label: 'خط مساندة الطفل', icon: <PhoneIcon />, targetScreen: ScreenType.InfoScreen },
+      ];
+
+      const SUB_SCREENS = {
+        prevention: {
+          title: 'طرق الوقاية من التنمر الإلكتروني',
+          items: [
+            { id: 'prevention-kids', label: 'نصائح للوقاية (للأطفال)', icon: <ChildrenIcon />, targetScreen: ScreenType.InfoScreen, parentKey: 'prevention' },
+            { id: 'prevention-parents', label: 'دور أولياء الأمور في الوقاية', icon: <ParentsIcon />, targetScreen: ScreenType.InfoScreen, parentKey: 'prevention' },
+            { id: 'prevention-bully', label: 'ماذا تفعل إذا كان طفلك هو المتنمر؟', icon: <CausesIcon />, targetScreen: ScreenType.InfoScreen, parentKey: 'prevention' },
+          ],
+        },
+        treatment: {
+          title: 'العلاج',
+          items: [
+            { id: 'treatment-parents', label: 'لـ أولياء الأمور', icon: <ParentsIcon />, targetScreen: ScreenType.InfoScreen, parentKey: 'treatment' },
+            { id: 'treatment-adults', label: 'للكبار', icon: <AdultsIcon />, targetScreen: ScreenType.InfoScreen, parentKey: 'treatment' },
+            { id: 'treatment-kids', label: 'للأطفال والمراهقين', icon: <ChildrenIcon />, targetScreen: ScreenType.InfoScreen, parentKey: 'treatment' },
+          ],
+        },
+      };
+
+      const INFO_SCREENS = {
+          'definition': {
+            title: 'تعريف التنمر الإلكتروني',
+            content: (
+              <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D8%AA%D8%B9%D8%B1%D9%8A%D9%81%20%D8%A7%D9%84%D8%AA%D9%86%D9%85%D8%B1%20%D8%A7%D9%84%D8%A7%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A.png?raw=true" alt="صورة انفوجرافيك تعرف التنمر الإلكتروني وأشكاله" className="w-full h-auto rounded-lg object-contain" /></div>
+            )
+          },
+          'forms': {
+            title: 'الأشكال والطرق',
+            content: (
+              <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D8%A7%D8%B4%D9%83%D8%A7%D9%84%20%D9%88%D8%B7%D8%B1%D9%82%20%D8%A7%D9%84%D8%AA%D9%86%D9%85%D8%B1%20%D8%A7%D9%84%D8%A7%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A.png?raw=true" alt="انفوجرافيك يوضح أشكال وطرق التنمر الإلكتروني" className="w-full h-auto rounded-lg object-contain" /></div>
+            )
+          },
+          'signs': {
+              title: 'علامات تدل على التعرض للتنمر',
+              content: (
+                  <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D8%A7%D9%84%D8%B9%D9%84%D8%A7%D9%85%D8%A7%D8%AA.png?raw=true" alt="انفوجرافيك يوضح علامات التعرض للتنمر الإلكتروني" className="w-full h-auto rounded-lg object-contain" /></div>
+              )
+          },
+          'causes': {
+              title: 'أسباب التنمر الإلكتروني',
+              content: (
+                  <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D8%A7%D9%84%D8%A3%D8%B3%D8%A8%D8%A7%D8%A8.png?raw=true" alt="انفوجرافيك يوضح أسباب التنمر الإلكتروني" className="w-full h-auto rounded-lg object-contain" /></div>
+              )
+          },
+          'prevention-kids': { 
+              title: 'نصائح للأطفال', 
+              content: (
+                  <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D9%86%D8%B5%D8%A7%D8%A6%D8%AD%20%D9%84%D9%84%D9%88%D9%82%D8%A7%D9%8A%D8%A9%20%D9%84%D9%84%D8%A7%D8%B7%D9%81%D8%A7%D9%84.png?raw=true" alt="نصائح للأطفال للوقاية من التنمر الإلكتروني" className="w-full h-auto rounded-lg object-contain" /></div>
+              ) 
+          },
+          'prevention-parents': { 
+              title: 'دور أولياء الأمور', 
+              content: (
+                   <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D8%AF%D9%88%D8%B1%20%D8%A7%D9%88%D9%84%D9%8A%D8%A7%D8%A1%20%D8%A7%D9%84%D8%A7%D9%85%D9%88%D8%B1%20%D9%81%D9%8A%20%D8%A7%D9%84%D9%88%D9%82%D8%A7%D9%8A%D8%A9.png?raw=true" alt="انفوجرافيك يوضح دور أولياء الأمور في الوقاية من التنمر الإلكتروني" className="w-full h-auto rounded-lg object-contain" /></div>
+              ) 
+          },
+          'prevention-bully': { 
+              title: 'إذا كان طفلك هو المتنمر', 
+              content: (
+                   <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D9%85%D8%A7%D8%B0%D8%A7%20%D8%AA%D9%81%D8%B9%D9%84%20%D8%A7%D8%B0%D8%A7%20%D9%83%D8%A7%D9%86%20%D8%B7%D9%81%D9%84%D9%83%20%D9%87%D9%88%20%D8%A7%D9%84%D9%85%D8%AA%D9%86%D9%85%D8%B1.png?raw=true" alt="انفوجرافيك يوضح ماذا تفعل إذا كان طفلك هو المتنمر" className="w-full h-auto rounded-lg object-contain" /></div>
+              ) 
+          },
+          'treatment-parents': { 
+              title: 'لأولياء الأمور', 
+              content: (
+                  <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D8%A7%D9%84%D8%B9%D9%84%D8%A7%D8%AC%20%D9%84%D8%A7%D9%88%D9%84%D9%8A%D8%A7%D8%A1%20%D8%A7%D9%84%D8%A7%D9%85%D9%88%D8%B1.png?raw=true" alt="انفوجرافيك عن علاج التنمر لأولياء الأمور" className="w-full h-auto rounded-lg object-contain" /></div>
+              ) 
+          },
+          'treatment-adults': { 
+              title: 'للكبار', 
+              content: (
+                  <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D8%A7%D9%84%D8%B9%D9%84%D8%A7%D8%AC%20%D9%84%D9%84%D9%83%D8%A8%D8%A7%D8%B1.png?raw=true" alt="انفوجرافيك عن علاج التنمر للكبار" className="w-full h-auto rounded-lg object-contain" /></div>
+              ) 
+          },
+          'treatment-kids': { 
+              title: 'للأطفال والمراهقين', 
+              content: (
+                  <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D8%A7%D9%84%D8%B9%D9%84%D8%A7%D8%AC%20%D9%84%D9%84%D8%A7%D8%B7%D9%81%D8%A7%D9%84%20%D9%88%D8%A7%D9%84%D9%85%D8%B1%D8%A7%D9%87%D9%82%D9%8A%D9%86.png?raw=true" alt="انفوجرافيك عن علاج التنمر للأطفال والمراهقين" className="w-full h-auto rounded-lg object-contain" /></div>
+              ) 
+          },
+          'resources-amn': { 
+              title: 'تطبيق كلنا أمن', 
+              content: (
+                  <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D8%AA%D9%88%D9%83%D9%84%D9%86%D8%A7.png?raw=true" alt="انفوجرافيك عن تطبيق كلنا أمن" className="w-full h-auto rounded-lg object-contain" /></div>
+              ) 
+          },
+          'resources-qaribon': { 
+              title: 'تطبيق قريبون', 
+              content: (
+                  <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D9%82%D8%B1%D9%8A%D8%A8%D9%88%D9%86.png?raw=true" alt="انفوجرافيك عن تطبيق قريبون" className="w-full h-auto rounded-lg object-contain" /></div>
+              ) 
+          },
+          'resources-line': { 
+              title: 'خط مساندة الطفل', 
+              content: (
+                  <div><img src="https://github.com/najwa-ba/cyberbullying-ai-app/blob/main/%D8%AE%D8%B7%20%D9%85%D8%B3%D8%A7%D9%86%D8%AF%D8%A9%20%D8%A7%D9%84%D8%B7%D9%81%D9%84.png?raw=true" alt="انفوجرافيك عن خط مساندة الطفل" className="w-full h-auto rounded-lg object-contain" /></div>
+              ) 
+          },
+      };
+
+      // --- Components ---
+
+      const IconCard = ({ item, onClick, colorClass = 'from-blue-500 to-indigo-600' }) => {
+        return (
+          <button
+            onClick={() => onClick(item)}
+            className={`group flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br ${colorClass} rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1`}
+          >
+            <div className="mb-4 transition-transform duration-300 group-hover:scale-110">
+              {item.icon}
+            </div>
+            <span className="font-bold text-white text-base md:text-lg">{item.label}</span>
+          </button>
+        );
+      };
+      
+      const InfoScreen = ({ content }) => {
+        return (
+          <div className="bg-white p-6 md:p-8 rounded-lg shadow-md max-w-3xl mx-auto animate-fade-in">
+            <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+              {content}
+            </div>
+          </div>
+        );
+      };
+
+      const SubScreen = ({ items, onNavigate }) => {
+        const handleCardClick = (item) => {
+          onNavigate({ screen: item.targetScreen, key: item.id });
+        };
+        const colors = [
+          'from-sky-500 to-blue-600',
+          'from-teal-500 to-cyan-600',
+          'from-emerald-500 to-green-600',
+        ];
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 p-4 animate-fade-in">
+             {items.map((item, index) => (
+              <IconCard 
+                key={item.id} 
+                item={item} 
+                onClick={handleCardClick} 
+                colorClass={colors[index % colors.length]}
+              />
+            ))}
+          </div>
+        );
+      };
+
+      const HomeScreen = ({ items, onNavigate }) => {
+        const handleCardClick = (item) => {
+          onNavigate({ screen: item.targetScreen, key: item.id });
+        };
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 p-4">
+            {items.map((item) => (
+              <IconCard key={item.id} item={item} onClick={handleCardClick} />
+            ))}
+          </div>
+        );
+      };
+
+      const Header = ({ title, onBack }) => (
+        <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg fixed top-0 left-0 right-0 z-10">
+          <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+            <div className="flex-1 text-center">
+              <h1 className="text-xl md:text-2xl font-bold">{title}</h1>
+            </div>
+            {onBack && (
+              <button onClick={onBack} className="absolute right-4 p-2 rounded-full hover:bg-white/20 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </header>
+      );
+
+      const Footer = () => (
+        <footer className="bg-gray-100 text-gray-600 text-center p-4 border-t border-gray-200">
+          <p className="text-sm font-medium">اعداد الموجهة الطلابية : نجوى بامهير</p>
+        </footer>
+      );
+
+      function App() {
+        const [history, setHistory] = useState([{ screen: ScreenType.Home }]);
+        const currentState = history[history.length - 1];
+
+        const navigateTo = useCallback((newState) => {
+          setHistory(prev => [...prev, newState]);
+        }, []);
+
+        const goBack = useCallback(() => {
+          if (history.length > 1) {
+            setHistory(prev => prev.slice(0, -1));
+          }
+        }, [history.length]);
+
+        const renderScreen = () => {
+          switch (currentState.screen) {
+            case ScreenType.SubScreen:
+              if (currentState.key && SUB_SCREENS[currentState.key]) {
+                const { items } = SUB_SCREENS[currentState.key];
+                return <SubScreen items={items} onNavigate={navigateTo} />;
+              }
+              return null;
+            case ScreenType.InfoScreen:
+              if (currentState.key && INFO_SCREENS[currentState.key]) {
+                const { content } = INFO_SCREENS[currentState.key];
+                return <InfoScreen content={content} />;
+              }
+              return null;
+            case ScreenType.Home:
+            default:
+              return <HomeScreen items={HOME_SCREEN_ITEMS} onNavigate={navigateTo} />;
+          }
+        };
+        
+        const getTitle = () => {
+          switch (currentState.screen) {
+              case ScreenType.SubScreen:
+                  return currentState.key ? SUB_SCREENS[currentState.key]?.title : 'التنمر الإلكتروني';
+              case ScreenType.InfoScreen:
+                  return currentState.key ? INFO_SCREENS[currentState.key]?.title : 'التنمر الإلكتروني';
+              case ScreenType.Home:
+              default:
+                  return 'التنمر الإلكتروني';
+          }
+        };
+
+        return (
+          <div className="min-h-screen bg-slate-50 flex flex-col font-tajawal">
+            <Header title={getTitle()} onBack={history.length > 1 ? goBack : undefined} />
+            <main className="flex-grow pt-20 pb-4 container mx-auto px-4">
+              {renderScreen()}
+            </main>
+            <Footer />
+          </div>
+        );
+      }
+
+      // --- Mount the App ---
+      const rootElement = document.getElementById('root');
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(
+        <StrictMode>
+          <App />
+        </StrictMode>
+      );
+
+    </script>
+</body>
+</html>
